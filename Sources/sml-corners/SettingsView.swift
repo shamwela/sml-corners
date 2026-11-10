@@ -114,6 +114,23 @@ struct SettingsView: View {
     @State private var confirmingReset = false
 
     var body: some View {
+        // Scrolls when the screen is too short; centred with a readable width when it is large.
+        ScrollView {
+            content
+                .padding(24)
+                .frame(maxWidth: 820)
+                .frame(maxWidth: .infinity)
+        }
+        .frame(minWidth: 600, minHeight: 400)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .confirmationDialog("Reset all corners to the defaults?", isPresented: $confirmingReset) {
+            Button("Reset", role: .destructive) { model.resetToDefaults() }
+        } message: {
+            Text("Top right takes a screenshot, top left opens Chrome, and the bottom corners do nothing.")
+        }
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
             if !model.accessibilityGranted { PermissionBanner() }
             if let error = model.error {
@@ -168,13 +185,6 @@ struct SettingsView: View {
                 }
             }
             .disabled(model.error != nil)
-        }
-        .padding(20)
-        .frame(width: 640)
-        .confirmationDialog("Reset all corners to the defaults?", isPresented: $confirmingReset) {
-            Button("Reset", role: .destructive) { model.resetToDefaults() }
-        } message: {
-            Text("Top right takes a screenshot, top left opens Chrome, and the bottom corners do nothing.")
         }
     }
 }

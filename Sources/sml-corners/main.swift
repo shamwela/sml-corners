@@ -122,16 +122,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openSettings() {
         if settingsWindow == nil {
-            let window = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(model: settings)))
+            let controller = NSHostingController(rootView: SettingsView(model: settings))
+            controller.sizingOptions = []  // the window decides its size; the content scrolls
+            let window = NSWindow(contentViewController: controller)
             window.title = "SML Corners"
-            window.styleMask = [.titled, .closable, .miniaturizable]
+            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+            window.collectionBehavior = [.fullScreenPrimary]
             window.isReleasedWhenClosed = false
+            window.setContentSize(NSSize(width: 760, height: 720))
             window.center()
             settingsWindow = window
         }
+        guard let window = settingsWindow else { return }
         settings.refreshLaunchAtLogin()
         NSApp.activate(ignoringOtherApps: true)
-        settingsWindow?.makeKeyAndOrderFront(nil)
+        window.makeKeyAndOrderFront(nil)
+        if !window.styleMask.contains(.fullScreen) { window.toggleFullScreen(nil) }
     }
 
     @objc private func openConfig() {
