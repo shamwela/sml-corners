@@ -141,10 +141,22 @@ func scaled(_ s: Double, around p: CGPoint, _ draw: () -> Void) {
 
 enum Align { case left, center, right }
 
+/// Geist Serif (SIL OFL, bundled in scripts/fonts) for titles. It ships in one weight.
+let titleFontName: String = {
+    let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+        .appendingPathComponent("fonts/GeistSerif-Regular.ttf")
+    var error: Unmanaged<CFError>?
+    if !CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error) {
+        fatalError("Cannot load \(url.path): \(String(describing: error?.takeRetainedValue()))")
+    }
+    return "GeistSerif-Regular"
+}()
+
 func text(_ parts: [(String, NSColor)], at p: CGPoint, size: Double, weight: NSFont.Weight = .semibold,
-          align: Align = .center, mono: Bool = false, alpha: Double = 1) {
+          align: Align = .center, mono: Bool = false, serif: Bool = false, alpha: Double = 1) {
     guard alpha > 0.001 else { return }
-    let font = mono ? NSFont.monospacedSystemFont(ofSize: size, weight: weight)
+    let font = serif ? NSFont(name: titleFontName, size: size)!
+        : mono ? NSFont.monospacedSystemFont(ofSize: size, weight: weight)
         : NSFont.systemFont(ofSize: size, weight: weight)
     let string = NSMutableAttributedString()
     for (s, color) in parts {
@@ -163,8 +175,8 @@ func text(_ parts: [(String, NSColor)], at p: CGPoint, size: Double, weight: NSF
 }
 
 func text(_ s: String, at p: CGPoint, size: Double, weight: NSFont.Weight = .semibold, color: NSColor = white,
-          align: Align = .center, mono: Bool = false, alpha: Double = 1) {
-    text([(s, color)], at: p, size: size, weight: weight, align: align, mono: mono, alpha: alpha)
+          align: Align = .center, mono: Bool = false, serif: Bool = false, alpha: Double = 1) {
+    text([(s, color)], at: p, size: size, weight: weight, align: align, mono: mono, serif: serif, alpha: alpha)
 }
 
 func symbol(_ name: String, in rect: CGRect, color: NSColor) {
@@ -304,13 +316,13 @@ func crosshair(_ p: CGPoint) {
 }
 
 func caption(_ s: String, _ alpha: Double) {
-    text(s, at: CGPoint(x: W / 2, y: 112), size: 50, weight: .bold, alpha: alpha)
+    text(s, at: CGPoint(x: W / 2, y: 112), size: 58, serif: true, alpha: alpha)
 }
 
 // MARK: - Scenes
 
 func sceneProblem(_ t: Double) {
-    text("Screenshot to clipboard on a Mac:", at: CGPoint(x: W / 2, y: 330), size: 50, weight: .bold,
+    text("Screenshot to clipboard on a Mac:", at: CGPoint(x: W / 2, y: 330), size: 58, serif: true,
          alpha: prog(t, 0, 0.35))
     let keys = [("⌃", "control"), ("⇧", "shift"), ("⌘", "command"), ("4", "")]
     let size = 140.0, gap = 60.0
@@ -342,8 +354,8 @@ func sceneProblem(_ t: Double) {
 func sceneOnePress(_ t: Double) {
     let a = prog(t, 2.75, 3.05)
     scaled(0.94 + 0.06 * easeOut(a), around: CGPoint(x: W / 2, y: 520)) {
-        text([("Now it's ", white), ("one press.", accent)], at: CGPoint(x: W / 2, y: 520), size: 84,
-             weight: .bold, alpha: a)
+        text([("Now it's ", white), ("one press.", accent)], at: CGPoint(x: W / 2, y: 520), size: 96, serif: true,
+             alpha: a)
     }
     text("SML Corners for macOS", at: CGPoint(x: W / 2, y: 615), size: 34, weight: .medium, color: muted,
          alpha: prog(t, 3.1, 3.4))
@@ -479,8 +491,8 @@ func sceneDemo(_ t: Double) {
 }
 
 func sceneEnd(_ t: Double) {
-    text("SML Corners", at: CGPoint(x: W / 2, y: 175), size: 88, weight: .bold, alpha: prog(t, 12.1, 12.45))
-    text("Give every trackpad corner a job", at: CGPoint(x: W / 2, y: 262), size: 36, weight: .medium,
+    text("SML Corners", at: CGPoint(x: W / 2, y: 175), size: 104, serif: true, alpha: prog(t, 12.1, 12.45))
+    text("Give every trackpad corner a job", at: CGPoint(x: W / 2, y: 274), size: 36, weight: .medium,
          color: muted, alpha: prog(t, 12.25, 12.6))
 
     let big = CGRect(x: 290, y: 420, width: 500, height: 310)
