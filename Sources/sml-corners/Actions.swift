@@ -27,6 +27,9 @@ enum Actions {
                 if let error { NSLog("SML Corners: %@", error.localizedDescription) }
             }
 
+        case .url(let url):
+            NSWorkspace.shared.open(url)
+
         case .shell(let command):
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/bin/zsh")

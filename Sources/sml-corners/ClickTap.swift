@@ -4,9 +4,9 @@ import Foundation
 /// Intercepts left clicks. A press with one finger inside a bound corner is
 /// swallowed and its action runs on release; everything else passes through.
 final class ClickTap {
-    var bindings: [Corner: Binding] = [:]
+    var bindings: [Corner: CornerBinding] = [:]
     private var port: CFMachPort?
-    private var pending: Binding?
+    private var pending: CornerBinding?
 
     func start() -> Bool {
         if port != nil { return true }
@@ -52,7 +52,7 @@ final class ClickTap {
         }
     }
 
-    private func match() -> Binding? {
+    private func match() -> CornerBinding? {
         guard let touch = TouchMonitor.shared.singleTouch() else { return nil }
         for (corner, binding) in bindings {
             let z = binding.zone
